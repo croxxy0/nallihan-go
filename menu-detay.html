@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NallıhanGo | Menü</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="menu-header">
+        <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="shop-title-container">
+            <h3 id="dukkanAdi">Yükleniyor...</h3>
+            <span id="dukkanBilgi" class="delivery-info">...</span>
+        </div>
+    </header>
+
+    <main class="container" id="urunListesi">
+        </main>
+
+    <div id="cart-summary" class="cart-summary-bar" style="display:none;">
+        <div class="summary-info"><span id="cart-count">0</span> Ürün</div>
+        <button class="view-cart-btn" onclick="location.href='sepet.html'">
+            Sepeti Gör <span id="cart-total">₺0,00</span>
+        </button>
+    </div>
+
+    <script src="veri.js"></script>
+    <script>
+        // 1. Hangi dükkanın seçildiğini URL'den anla (Örn: menu-detay.html?id=donerci-ali)
+        const urlParams = new URLSearchParams(window.location.search);
+        const dukkanId = urlParams.get('id');
+
+        const dukkan = veri.dukkanlar[dukkanId];
+
+        if(dukkan) {
+            document.getElementById('dukkanAdi').innerText = dukkan.ad;
+            document.getElementById('dukkanBilgi').innerText = `${dukkan.sure} • Puan: ${dukkan.puan}`;
+
+            const listeHtml = dukkan.urunler.map(urun => `
+                <div class="product-card">
+                    <div class="product-info">
+                        <h4>${urun.ad}</h4>
+                        <p>${urun.aciklama}</p>
+                        <span class="price">₺${urun.fiyat.toFixed(2)}</span>
+                    </div>
+                    <div class="product-action">
+                        <div class="product-img" style="background-image: url('${urun.img}')"></div>
+                        <button class="add-btn" onclick="addToCart('${urun.ad}', ${urun.fiyat})">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('urunListesi').innerHTML = listeHtml;
+        }
+
+        // Sepet Fonksiyonları
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        function addToCart(name, price) {
+            cart.push({name, price});
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBar();
+        }
+
+        function updateCartBar() {
+            if(cart.length > 0) {
+                document.getElementById('cart-summary').style.display = 'flex';
+                document.getElementById('cart-count').innerText = cart.length;
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                document.getElementById('cart-total').innerText = '₺' + total.toFixed(2);
+            }
+        }
+        updateCartBar();
+    </script>
+</body>
+</html>
