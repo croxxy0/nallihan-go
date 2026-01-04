@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NallıhanGo | Sepetim</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="javascript:history.back()"><i class="fas fa-chevron-left"></i></a>
+            <div class="logo">Sepetim</div>
+            <div></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="sepetListesi" class="cart-items-container">
+            </div>
+
+        <div class="checkout-form">
+            <h3>Teslimat Bilgileri</h3>
+            <div style="text-align: center; margin-bottom: 20px; color: var(--primary);">
+    <i class="fas fa-truck-fast fa-3x"></i>
+</div>
+            <input type="text" id="musteriAd" placeholder="Ad Soyad" required>
+            <input type="tel" id="musteriTel" placeholder="Telefon Numarası" required>
+            <textarea id="musteriAdres" placeholder="Okul / Bölüm / Oda No veya Açık Adres" required></textarea>
+            
+            <div class="total-section">
+                <span>Toplam Tutar:</span>
+                <strong id="genelToplam">₺0,00</strong>
+            </div>
+            <p>Ödemeler yalnızca nakit olarak alınır !</p>
+
+            <button onclick="siparisVer()" class="order-btn">Siparişi Onayla</button>
+        </div>
+    </main>
+
+    <script>
+        // Sepetteki ürünleri yerel hafızadan çek
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const liste = document.getElementById('sepetListesi');
+        let toplam = 0;
+
+        if(cart.length === 0) {
+            liste.innerHTML = "<p style='text-align:center; padding:20px;'>Sepetin şu an boş.</p>";
+        } else {
+            liste.innerHTML = cart.map((item, index) => {
+                toplam += item.price;
+                return `
+                    <div class="cart-item">
+                        <span>${item.name}</span>
+                        <span>₺${item.price.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        document.getElementById('genelToplam').innerText = '₺' + toplam.toFixed(2);
+
+        function siparisVer() {
+            const ad = document.getElementById('musteriAd').value;
+            const tel = document.getElementById('musteriTel').value;
+            const adres = document.getElementById('musteriAdres').value;
+
+            if(!ad || !tel || !adres) {
+                alert("Lütfen tüm alanları doldurun!");
+                return;
+            }
+
+            const siparisNotu = {
+                musteri: ad,
+                telefon: tel,
+                adres: adres,
+                urunler: cart,
+                toplam: toplam,
+                tarih: new Date().toLocaleString()
+            };
+
+            // LOG TUTMA KISMI (BAŞLANGIÇ İÇİN EN BASİT YÖNTEM: WhatsApp veya E-posta)
+            // Daha sonra Firebase'e bağlayacağız.
+            const mesaj = `YENİ SİPARİŞ!%0A%0Aİsim: ${ad}%0ATel: ${tel}%0AAdres: ${adres}%0AÜrünler: ${cart.map(i => i.name).join(', ')}%0AToplam: ₺${toplam}`;
+            
+            window.location.href = `https://wa.me/905000000000?text=${mesaj}`; // Buraya kendi numaranı yaz
+            
+            // Siparişi temizle
+            localStorage.removeItem('cart');
+        }
+    </script>
+</body>
+</html>
